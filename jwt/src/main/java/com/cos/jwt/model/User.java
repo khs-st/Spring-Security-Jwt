@@ -18,14 +18,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String username;
-    private String pawwsord;
+    private String password;
 
     //USER, ADMIN
     private String roles;
 
     public List<String> getRoleList(){
         if(this.roles.length() > 0){
-            return Arrays.asList(this.roles.split("."));
+            return Arrays.asList(this.roles.split(","));
         }
         return new ArrayList<>();
     }
