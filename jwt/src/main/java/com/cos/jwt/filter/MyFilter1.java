@@ -18,6 +18,7 @@ public class MyFilter1 implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
 
         log.info("필터1");
+        //커밋테스트
         filterChain.doFilter(req,res);
 
     }
