@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+
 //http:localhost:8080/login 시 동작
 @Service
 @Slf4j
@@ -18,7 +19,7 @@ public class PrincipalDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
        log.info("PrincipalDetailsService");
         User userEntity= userRepository.findByUsername(username);
         return new PrincipalDetails(userEntity);

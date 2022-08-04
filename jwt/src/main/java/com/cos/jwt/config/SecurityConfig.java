@@ -1,8 +1,8 @@
 package com.cos.jwt.config;
 
-import com.cos.jwt.config.jwt.JwtAuthenticationFilter;
 import com.cos.jwt.filter.MyFilter1;
 import com.cos.jwt.filter.MyFilter3;
+import com.cos.jwt.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //시큐리티 필터 아닌 따로 설정한 필터(MyFilter3) 사용
-        http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class);
+        //http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class);
         //CSRF 보호 기능 미사용 처리(브라우저 통해 요청 받지 않는다면 disable 처리해도 무방)
         http.csrf().disable();
         //세션 관리 정책을 STATELESS로 설정(세션 관리를 하지 않겠다는 의미)
