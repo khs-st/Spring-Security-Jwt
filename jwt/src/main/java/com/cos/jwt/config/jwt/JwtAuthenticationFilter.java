@@ -1,5 +1,7 @@
 package com.cos.jwt.config.jwt;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.cos.jwt.config.auth.PrincipalDetails;
 import com.cos.jwt.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Date;
 
 //login 요청하여 userName, password 전송(post) 시
 // UsernamePasswordAuthenticationFilter 필터 동작
@@ -42,22 +45,22 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 //            }
             ObjectMapper om = new ObjectMapper();
             User user = om.readValue(request.getInputStream(), User.class);
-            log.info("ObjectMapper로 만든 user: "+ user);
+            log.info("ObjectMapper로 만든 user: " + user);
 
             //토큰 생성
             UsernamePasswordAuthenticationToken authenticationToken
-                    = new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword());
-            log.info("authenticationToken: "+ authenticationToken);
+                    = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+            log.info("authenticationToken: " + authenticationToken);
 
             //2. 정상인지 로그인 시도 -> authenticationManager로 로그인 시도
             //PrincipalDetailsService의 loadUserByUsername() 함수가 실행된다.
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
-            log.info("authentication의 user: "+ authentication);
+            log.info("authentication의 user: " + authentication);
 
             //3. 시도 하면 PrincipalDetailsService가 호출 -> loadUserByUsername()이 실행
             //4. PrincipalDetails를 세션이 담는다. (세션에 담는 이유: 권한 관리를 위해서)
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-            log.info("principalDetails의 userName: "+principalDetails.getUsername());
+            log.info("principalDetails의 userName: " + principalDetails.getUsername());
 
             //5. JWT 토큰을 만들어 응답하면 된다.
             //authentication 객체가 session 영역에 저장된다. => 로그인 되었다는 의미다.
@@ -68,7 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         } catch (IOException e) {
             e.printStackTrace();
         }
-         throw new NullPointerException("tdrtrdrdtdrtdr");
+        return null;
     }
 
     //attemptAuthentication 인증이 정상적으로 완료되었다면 successfulAuthentication 실행
@@ -76,7 +79,28 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         log.info("인증완료 !!!! successfulAuthentication 실행됨");
-        super.successfulAuthentication(request, response, chain, authResult);
+        PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+
+
+        //유저네임, 패스워드 로그인 정상
+        //서버쪽 세션ID 생성
+        //클라이언트 쿠키 세션ID를 응답
+        //요청할 때마다 쿠키값과 세션ID를 항상 들고 서버에 요청하기 때문에
+        //서버는 세션ID가 유효한지 판단해서 유효하다면 인증이 필요한 페이지로 접근하게 한다.
+
+        //위 방식이 아닌 JWT 토큰을 생성하여 클라이언트 쪽으로 JWT 토큰을 응답
+        //요청할 때마다 JWT 토큰을 가지고 요청
+        //서버는 JWT 토큰이 유효한지를 판단(필터 생성 필요)
+
+        //RSA 방식이 아니라 Hash 암호 방식
+        String jwtToken = JWT.create()
+                .withSubject("cos토큰")
+                .withExpiresAt(new Date(System.currentTimeMillis() + (60000 * 10)))
+                .withClaim("id", principalDetails.getUser().getId())
+                .withClaim("username", principalDetails.getUser().getUsername())
+                .sign(Algorithm.HMAC512("cos"));
+
+        response.addHeader("Authorization", "Bearer " + jwtToken);
     }
 
 
