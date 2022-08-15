@@ -20,6 +20,24 @@ public class RestApiController {
         return "<h1>home</h1>";
     }
 
+    //user, manager, admin 권한 접근 가능
+    @GetMapping("user")
+    public String user(){
+        return "user";
+    }
+
+    //manager, admin 권한만 접근 가능
+    @GetMapping("manager")
+    public String manager(){
+        return "manager";
+    }
+
+    //admin 권한만 접근 가능
+    @GetMapping("admin")
+    public String admin(){
+        return "admin";
+    }
+
     @PostMapping("token")
     public String token(){
         return "<h1>token</h1>";
@@ -32,4 +50,5 @@ public class RestApiController {
         userRepository.save(user);
         return "회원가입 완료";
     }
+
 }
